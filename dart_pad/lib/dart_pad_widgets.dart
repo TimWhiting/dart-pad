@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'src/theme.dart';
 import 'src/common_widgets.dart';
@@ -41,13 +42,32 @@ class _DartPadWidgetState extends State<DartPadWidget> {
   }
 
   ScrollController _scrollController;
-  FocusNode _focus = FocusNode(
-      onKey: (node, key) =>
-          key == RawKeyEvent.fromMessage({'keyCode': 9}) ? true : false);
+  TextEditingController _codeController;
+  FocusNode _focus;
 
   @override
   void initState() {
     _scrollController = ScrollController();
+    _codeController = TextEditingController();
+    _focus = FocusNode(onKey: (node, key) {
+      print('focus');
+      if (key.logicalKey == LogicalKeyboardKey.tab) {
+        print('here');
+        _codeController.value = _codeController.value.copyWith(
+            text: _codeController.value.text
+                    .substring(0, _codeController.value.selection.baseOffset) +
+                '\t' +
+                _codeController.value.text
+                    .substring(_codeController.value.selection.baseOffset),
+            selection: _codeController.value.selection.copyWith(
+              baseOffset: _codeController.value.selection.baseOffset + 1,
+              extentOffset: _codeController.value.selection.extentOffset + 1,
+            ));
+        return true;
+      }
+      print('there');
+      return false;
+    });
     super.initState();
   }
 
@@ -61,12 +81,14 @@ class _DartPadWidgetState extends State<DartPadWidget> {
               padding: const EdgeInsets.only(right: 16.0),
               child: DartIcon(),
             ),
-            Text('DartPad',
-                style: Theme.of(context)
-                    .textTheme
-                    .headline4
-                    .copyWith(color: Colors.white)),
-            SizedBox(width: 20),
+            Text(
+              'DartPad',
+              style: Theme.of(context)
+                  .textTheme
+                  .headline5
+                  .copyWith(color: Colors.white),
+            ),
+            SizedBox(width: 10),
             ButtonIconShowIfRoom(
               icon: Icons.code,
               text: 'New Pad',
@@ -88,10 +110,14 @@ class _DartPadWidgetState extends State<DartPadWidget> {
               onPressed: () {},
             ),
             Spacer(),
-            Text('Title'),
-            Spacer(),
+            if (MediaQuery.of(context).size.width > 700) ...[
+              Text('Title',
+                  overflow: TextOverflow.fade,
+                  textWidthBasis: TextWidthBasis.parent),
+              Spacer(),
+            ],
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 12.0),
               child: PopupMenuButton<String>(
                 offset: Offset(0, 80),
                 child: Row(
@@ -137,25 +163,38 @@ class _DartPadWidgetState extends State<DartPadWidget> {
         Expanded(
           flex: 1,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            padding: const EdgeInsets.only(right: 8.0, top: 8),
             child: Stack(
               alignment: Alignment.topLeft,
               children: [
-                Scrollbar(
-                  controller: _scrollController,
-                  isAlwaysShown: true,
-                  child: TextField(
-                    focusNode: _focus,
-                    keyboardType: TextInputType.multiline,
-                    textInputAction: TextInputAction.newline,
-                    style: Theme.of(context).textTheme.headline6,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: 'Enter some code here',
+                Container(color: playground_background_color),
+                Padding(
+                  padding: const EdgeInsets.only(left: 20.0),
+                  child: Scrollbar(
+                    controller: _scrollController,
+                    isAlwaysShown: true,
+                    child: TextField(
+                      controller: _codeController,
+                      focusNode: _focus,
+                      keyboardType: TextInputType.multiline,
+                      textInputAction: TextInputAction.newline,
+                      style: Theme.of(context).textTheme.headline6,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'Enter some code here',
+                      ),
+                      scrollController: _scrollController,
+                      maxLines: 5000,
+                      minLines: 20,
                     ),
-                    scrollController: _scrollController,
-                    maxLines: 5000,
-                    minLines: 20,
+                  ),
+                ),
+                AnimatedBuilder(
+                  animation: _codeController,
+                  builder: (context, child) => SelectableText.rich(
+                    TextSpan(
+                      text: _codeController.value.text,
+                    ),
                   ),
                 ),
                 Positioned.directional(
@@ -163,6 +202,7 @@ class _DartPadWidgetState extends State<DartPadWidget> {
                   end: 10,
                   top: 0,
                   child: RaisedButton.icon(
+                    color: button_color,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(6)),
                     ),
@@ -180,30 +220,40 @@ class _DartPadWidgetState extends State<DartPadWidget> {
         Expanded(
           flex: 1,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
                 flex: 1,
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: RichText(
-                    textAlign: TextAlign.left,
-                    text: TextSpan(
-                      text: 'Console',
-                      style: Theme.of(context).textTheme.subtitle1,
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Container(
+                    color: playground_background_color,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: RichText(
+                        textAlign: TextAlign.left,
+                        text: TextSpan(
+                          text: 'Console',
+                          style: Theme.of(context).textTheme.subtitle1,
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
+              SizedBox(height: 8),
               Expanded(
                 flex: 1,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: RichText(
-                    textAlign: TextAlign.left,
-                    text: TextSpan(
-                      text: 'Documentation',
-                      style: Theme.of(context).textTheme.subtitle1,
+                child: Container(
+                  color: playground_background_color,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: RichText(
+                      textAlign: TextAlign.left,
+                      text: TextSpan(
+                        text: 'Documentation',
+                        style: Theme.of(context).textTheme.subtitle1,
+                      ),
                     ),
                   ),
                 ),
@@ -213,7 +263,8 @@ class _DartPadWidgetState extends State<DartPadWidget> {
         )
       ]),
       persistentFooterButtons: [
-        SizedBox(
+        Container(
+          color: playground_footer_background_color,
           width: MediaQuery.of(context).size.width,
           child: Row(
             children: [

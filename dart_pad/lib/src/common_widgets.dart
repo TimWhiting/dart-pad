@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 bool isDesktop(BuildContext context) {
-  return MediaQuery.of(context).size.width > 900;
+  return MediaQuery.of(context).size.width > 850;
 }
 
 class DartIcon extends StatelessWidget {
@@ -27,6 +27,9 @@ class ButtonIconShowIfRoom extends StatelessWidget {
   Widget build(BuildContext context) {
     return isDesktop(context)
         ? FlatButton.icon(
+            padding: EdgeInsets.symmetric(
+              horizontal: 12,
+            ),
             icon: Icon(icon),
             label: Text(text),
             onPressed: onPressed,
