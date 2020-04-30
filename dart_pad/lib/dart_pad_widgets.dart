@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:rich_code_editor/rich_code_editor.dart';
+import 'dart_highlighter.dart';
 import 'src/theme.dart';
 import 'src/common_widgets.dart';
 
@@ -41,33 +43,31 @@ class _DartPadWidgetState extends State<DartPadWidget> {
     );
   }
 
-  ScrollController _scrollController;
-  TextEditingController _codeController;
+  CodeEditingController _cec = CodeEditingController();
   FocusNode _focus;
 
   @override
   void initState() {
-    _scrollController = ScrollController();
-    _codeController = TextEditingController();
-    _focus = FocusNode(onKey: (node, key) {
-      print('focus');
-      if (key.logicalKey == LogicalKeyboardKey.tab) {
-        print('here');
-        _codeController.value = _codeController.value.copyWith(
-            text: _codeController.value.text
-                    .substring(0, _codeController.value.selection.baseOffset) +
-                '\t' +
-                _codeController.value.text
-                    .substring(_codeController.value.selection.baseOffset),
-            selection: _codeController.value.selection.copyWith(
-              baseOffset: _codeController.value.selection.baseOffset + 1,
-              extentOffset: _codeController.value.selection.extentOffset + 1,
-            ));
-        return true;
-      }
-      print('there');
-      return false;
-    });
+    _cec = CodeEditingController();
+    // _focus = FocusNode(onKey: (node, key) {
+    //   print('focus');
+    //   if (key.logicalKey == LogicalKeyboardKey.tab) {
+    //     print('here');
+    //     _codeController.value = _codeController.value.copyWith(
+    //         text: _codeController.value.text
+    //                 .substring(0, _codeController.value.selection.baseOffset) +
+    //             '\t' +
+    //             _codeController.value.text
+    //                 .substring(_codeController.value.selection.baseOffset),
+    //         selection: _codeController.value.selection.copyWith(
+    //           baseOffset: _codeController.value.selection.baseOffset + 1,
+    //           extentOffset: _codeController.value.selection.extentOffset + 1,
+    //         ));
+    //     return true;
+    //   }
+    //   print('there');
+    //   return false;
+    // });
     super.initState();
   }
 
@@ -170,31 +170,16 @@ class _DartPadWidgetState extends State<DartPadWidget> {
                 Container(color: playground_background_color),
                 Padding(
                   padding: const EdgeInsets.only(left: 20.0),
-                  child: Scrollbar(
-                    controller: _scrollController,
-                    isAlwaysShown: true,
-                    child: TextField(
-                      controller: _codeController,
-                      focusNode: _focus,
-                      keyboardType: TextInputType.multiline,
-                      textInputAction: TextInputAction.newline,
-                      style: Theme.of(context).textTheme.headline6,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Enter some code here',
-                      ),
-                      scrollController: _scrollController,
-                      maxLines: 5000,
-                      minLines: 20,
-                    ),
-                  ),
-                ),
-                AnimatedBuilder(
-                  animation: _codeController,
-                  builder: (context, child) => SelectableText.rich(
-                    TextSpan(
-                      text: _codeController.value.text,
-                    ),
+                  child: CodeTextField(
+                    keyboardType: TextInputType.multiline,
+                    highlighter: DartHighlighter(),
+                    enableInteractiveSelection: true,
+                    maxLines: null,
+                    controller: _cec,
+                    autofocus: true,
+                    cursorColor: Colors.white,
+                    decoration: null,
+                    style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ),
                 Positioned.directional(

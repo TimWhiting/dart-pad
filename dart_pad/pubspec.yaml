@@ -22,6 +22,8 @@ environment:
 
 dependencies:
   flutter_svg: any
+  rich_code_editor:
+    path: ../../rich_code_editor
   flutter:
     sdk: flutter
 
