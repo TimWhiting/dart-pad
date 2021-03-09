@@ -33,7 +33,7 @@ class DartPadWidget extends StatefulWidget {
 }
 
 class _DartPadWidgetState extends State<DartPadWidget> {
-  PopupMenuItem<String> _dropDown(String value, Widget icon) {
+  PopupMenuItem<String> _dropDownItem(String value, Widget icon) {
     return PopupMenuItem(
       value: value,
       child: Row(
@@ -48,13 +48,10 @@ class _DartPadWidgetState extends State<DartPadWidget> {
     );
   }
 
-  ScrollController _scrollController;
   CodeController _codeController;
-  FocusNode _focus;
 
   @override
   void initState() {
-    _scrollController = ScrollController();
     _codeController = CodeController(
       text: r"""
 import '';
@@ -112,26 +109,29 @@ class Yellow {
                   .copyWith(color: Colors.white),
             ),
             SizedBox(width: 10),
-            ButtonIconShowIfRoom(
-              icon: Icons.code,
-              text: 'New Pad',
-              onPressed: () {},
-            ),
+            if (isDesktop(context))
+              TextButton.icon(
+                icon: Icon(Icons.code),
+                label: Text('New Pad'),
+                onPressed: () {},
+              ),
             TextButton.icon(
               icon: Icon(Icons.refresh),
               label: Text('Reset'),
               onPressed: () {},
             ),
-            ButtonIconShowIfRoom(
-              icon: Icons.format_align_left,
-              text: 'Format',
-              onPressed: () {},
-            ),
-            ButtonIconShowIfRoom(
-              icon: Icons.get_app,
-              text: 'Install SDK',
-              onPressed: () {},
-            ),
+            if (isDesktop(context)) ...[
+              TextButton.icon(
+                icon: Icon(Icons.format_align_left),
+                label: Text('Format'),
+                onPressed: () {},
+              ),
+              TextButton.icon(
+                icon: Icon(Icons.get_app),
+                label: Text('Install SDK'),
+                onPressed: () {},
+              ),
+            ],
             Spacer(),
             if (MediaQuery.of(context).size.width > 700) ...[
               Text('Title',
@@ -156,14 +156,14 @@ class Yellow {
                   ],
                 ),
                 itemBuilder: (context) => [
-                  _dropDown('Hello World', DartIcon()),
-                  _dropDown('Int to Double', DartIcon()),
-                  _dropDown('Mixins', DartIcon()),
-                  _dropDown('Fibonacci', DartIcon()),
-                  _dropDown('Counter', FlutterIcon()),
-                  _dropDown('Sunflower', FlutterIcon()),
-                  _dropDown('Draggables & physics', FlutterIcon()),
-                  _dropDown('Implicit animations', FlutterIcon()),
+                  _dropDownItem('Hello World', DartIcon()),
+                  _dropDownItem('Int to Double', DartIcon()),
+                  _dropDownItem('Mixins', DartIcon()),
+                  _dropDownItem('Fibonacci', DartIcon()),
+                  _dropDownItem('Counter', FlutterIcon()),
+                  _dropDownItem('Sunflower', FlutterIcon()),
+                  _dropDownItem('Draggables & physics', FlutterIcon()),
+                  _dropDownItem('Implicit animations', FlutterIcon()),
                 ],
                 onSelected: (value) {},
               ),
@@ -172,10 +172,10 @@ class Yellow {
               offset: Offset(0, 40),
               child: Icon(Icons.more_vert, color: Colors.white),
               itemBuilder: (context) => [
-                _dropDown('Share', Icon(Icons.launch)),
-                _dropDown('DartPad on GitHub', Icon(Icons.launch)),
-                _dropDown('dart.dev', Icon(Icons.launch)),
-                _dropDown('flutter.dev', Icon(Icons.launch)),
+                _dropDownItem('Share', Icon(Icons.launch)),
+                _dropDownItem('DartPad on GitHub', Icon(Icons.launch)),
+                _dropDownItem('dart.dev', Icon(Icons.launch)),
+                _dropDownItem('flutter.dev', Icon(Icons.launch)),
               ],
               onSelected: (value) {},
             )
@@ -193,33 +193,12 @@ class Yellow {
                 Container(color: playground_background_color),
                 Padding(
                   padding: const EdgeInsets.only(left: 20.0),
-                  child: Scrollbar(
-                    controller: _scrollController,
-                    isAlwaysShown: true,
-                    child: CodeField(
-                      controller: _codeController,
-                      // keyboardType: TextInputType.multiline,
-                      // textInputAction: TextInputAction.newline,
-                      textStyle: GoogleFonts.robotoMono(
-                          fontWeight: FontWeight.w300, fontSize: 15),
-                      // decoration: InputDecoration(
-                      //   border: InputBorder.none,
-                      //   hintText: 'Enter some code here',
-                      // ),
-                      // scrollController: _scrollController,
-                      // maxLines: 5000,
-                      // minLines: 20,
-                    ),
+                  child: CodeField(
+                    controller: _codeController,
+                    textStyle: GoogleFonts.robotoMono(
+                        fontWeight: FontWeight.w300, fontSize: 15),
                   ),
                 ),
-                // AnimatedBuilder(
-                //   animation: _codeController,
-                //   builder: (context, child) => SelectableText.rich(
-                //     TextSpan(
-                //       text: _codeController.value.text,
-                //     ),
-                //   ),
-                // ),
                 Positioned.directional(
                   textDirection: TextDirection.ltr,
                   end: 10,

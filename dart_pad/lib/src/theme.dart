@@ -10,7 +10,15 @@ class DartPadTheme {
       primaryColor: button_color,
       accentColor: Color(0xff676767),
       buttonColor: button_color,
-      textTheme: GoogleFonts.robotoTextTheme(ThemeData.dark().textTheme),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          primary: Colors.white,
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          textStyle: TextStyle(color: Colors.white),
+        ),
+      ),
+      textTheme: GoogleFonts.robotoTextTheme(ThemeData.dark().textTheme)
+          .copyWith(button: TextStyle(color: Colors.white)),
       visualDensity: VisualDensity.adaptivePlatformDensity,
       appBarTheme: AppBarTheme(
         color: playground_header_background_color,
